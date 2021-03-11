@@ -7,7 +7,7 @@ const typeDefs = gql`
             title: String
             author: String
             content: String
-            page: Int
+            lastKey: String
             limit: Int
             sort: sortingTypes
             isMatched: Boolean
