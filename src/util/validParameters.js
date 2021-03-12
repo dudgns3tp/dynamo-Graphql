@@ -1,11 +1,11 @@
 const validParameters = function (args) {
     let { condition, title, author, content, isMatched } = args;
     const existedParameters = Object.entries({ title, content, author }).filter(
-        (it) => it[1] != undefined
+        (value) => value[1] != undefined
     );
 
-    for (let i of existedParameters) {
-        switch (i[0]) {
+    for (let parameter of existedParameters) {
+        switch (parameter[0]) {
             case 'title':
                 condition =
                     isMatched === true

@@ -14,7 +14,6 @@ const typeDefs = gql`
     enum sortingTypes {
         like
         recent
-        seq
     }
 `;
 

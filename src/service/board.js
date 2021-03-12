@@ -1,5 +1,6 @@
 import dynamoose from 'dynamoose';
 import { ApolloError } from 'apollo-server';
+import _ from 'lodash';
 
 import Board from '../model/board.js';
 import { validParameters } from '../util/validParameters.js';
@@ -23,40 +24,34 @@ const deleteBoard = async (args) => {
     }
 };
 
-const searchBoards = async (args) => {
-    const { lastKey, limit, sort, title, author, content, isMatched } = {
-        lastKey: { _id: args.lastKey, BoardId: 'Board1' },
-        limit: args.limit || 5,
-        sort: args.sort || 'seq',
-        title: args.title,
-        author: args.author,
-        content: args.content,
-        isMatched: args.isMatched || false,
-    };
+const searchBoards = async ({
+    BoardId,
+    lastKey,
+    limit,
+    sort,
+    title,
+    author,
+    content,
+    isMatched,
+}) => {
     try {
         let Query;
-        let condition = new dynamoose.Condition().where('BoardId').eq('Board1');
+        let condition = new dynamoose.Condition().where('BoardId').eq(BoardId);
         condition = validParameters({ condition, title, author, content, isMatched });
         Query = Board.query(condition);
-        Query = lastKey._id === undefined ? Query : Query.startAt(lastKey).limit(limit);
+        Query = _.isNil(lastKey._id) ? Query : Query.startAt(lastKey);
         Query = sortingType({ Query, sort });
-        const board = await Query.exec();
+        const board = await Query.limit(limit).exec();
         return board;
-    } catch {
-        throw new ApolloError('INTERNER SERVER ERROR', 'INTERNER_SERVER_ERROR');
+    } catch (err) {
+        console.log(err);
     }
 };
 
-const searchCount = async (args) => {
-    const { title, author, content, isMatched } = {
-        title: args.title,
-        author: args.author,
-        content: args.content,
-        isMatched: args.isMatched || false,
-    };
+const searchCount = async ({ BoardId, title, author, content, isMatched }) => {
     try {
         let Query;
-        let condition = new dynamoose.Condition().where('BoardId').eq('Board1');
+        let condition = new dynamoose.Condition().where('BoardId').eq(BoardId);
         condition = validParameters({ condition, title, author, content, isMatched });
         Query = Board.query(condition);
         return await Query.count().exec();
@@ -88,11 +83,7 @@ const addDislike = async (args) => {
 };
 
 const updateBoard = async ({ primaryKey, updateItem }) => {
-    return Board.update(primaryKey, { $SET: updateItem })
-        .then((result) => result)
-        .catch(() => {
-            throw new ApolloError('INTERNER SERVER ERROR', 'INTERNER_SERVER_ERROR');
-        });
+    return Board.update(primaryKey, { $SET: updateItem }).then((result) => result);
 };
 
 export default {

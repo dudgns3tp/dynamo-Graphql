@@ -4,6 +4,7 @@ const typeDefs = gql`
     type Query {
         getBoard(BoardId: ID!, _id: String!): Board
         searchBoards(
+            BoardId: ID!
             title: String
             author: String
             content: String
@@ -13,6 +14,7 @@ const typeDefs = gql`
             isMatched: Boolean
         ): [Board]
         getSearchCount(
+            BoardId: ID!
             title: String
             author: String
             content: String
