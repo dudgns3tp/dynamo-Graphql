@@ -1,4 +1,6 @@
 import dynamoose from 'dynamoose';
+import { ApolloError } from 'apollo-server';
+
 import Board from '../model/board.js';
 import { validParameters } from '../util/validParameters.js';
 import { sortingType } from '../util/sortingType.js';
@@ -31,28 +33,75 @@ const searchBoards = async (args) => {
         content: args.content,
         isMatched: args.isMatched || false,
     };
-    let Query;
+    try {
+        let Query;
+        let condition = new dynamoose.Condition().where('BoardId').eq('Board1');
+        condition = validParameters({ condition, title, author, content, isMatched });
+        Query = Board.query(condition);
+        Query = lastKey._id === undefined ? Query : Query.startAt(lastKey).limit(limit);
+        Query = sortingType({ Query, sort });
+        const board = await Query.exec();
+        return board;
+    } catch {
+        throw new ApolloError('INTERNER SERVER ERROR', 'INTERNER_SERVER_ERROR');
+    }
+};
 
-    let condition = new dynamoose.Condition().where('BoardId').eq('Board1');
-    condition = validParameters({ condition, title, author, content, isMatched });
-    Query = Board.query(condition);
-    Query = lastKey._id === undefined ? Query : Query.startAt(lastKey).limit(limit);
-    Query = sortingType({ Query, sort });
-    const board = await Query.exec();
-    return board;
+const searchCount = async (args) => {
+    const { title, author, content, isMatched } = {
+        title: args.title,
+        author: args.author,
+        content: args.content,
+        isMatched: args.isMatched || false,
+    };
+    try {
+        let Query;
+        let condition = new dynamoose.Condition().where('BoardId').eq('Board1');
+        condition = validParameters({ condition, title, author, content, isMatched });
+        Query = Board.query(condition);
+        return await Query.count().exec();
+    } catch {
+        throw new ApolloError('INTERNER SERVER ERROR', 'INTERNER_SERVER_ERROR');
+    }
 };
 
 const addLike = async (args) => {
-    return Board.get(args).then((board) => {
-        ++board.like;
-        return board.save();
-    });
+    return Board.get(args)
+        .then((board) => {
+            ++board.like;
+            return board.save();
+        })
+        .catch(() => {
+            throw new ApolloError('failed like', 'INTERNER_SERVER_ERROR');
+        });
 };
 
 const addDislike = async (args) => {
-    return Board.get(args).then((board) => {
-        --board.like;
-        return board.save();
-    });
+    return Board.get(args)
+        .then((board) => {
+            --board.like;
+            return board.save();
+        })
+        .catch(() => {
+            throw new ApolloError('Failed disLike', 'INTERNER_SERVER_ERROR');
+        });
 };
-export default { addBoard, getBoard, deleteBoard, searchBoards, addLike, addDislike };
+
+const updateBoard = async ({ primaryKey, updateItem }) => {
+    return Board.update(primaryKey, { $SET: updateItem })
+        .then((result) => result)
+        .catch(() => {
+            throw new ApolloError('INTERNER SERVER ERROR', 'INTERNER_SERVER_ERROR');
+        });
+};
+
+export default {
+    addBoard,
+    getBoard,
+    deleteBoard,
+    searchBoards,
+    addLike,
+    addDislike,
+    searchCount,
+    updateBoard,
+};
