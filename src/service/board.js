@@ -1,48 +1,56 @@
-import { ApolloError } from 'apollo-server';
 import dynamoose from 'dynamoose';
 import Board from '../model/board.js';
-import { sortingType } from '../util/sortingTypeMap.js';
+import { validParameters } from '../util/validParameters.js';
+import { sortingType } from '../util/sortingType.js';
 
-const addBoard = async ({ _id, title, author, content, label, colA }) => {
-    return new Board({ _id, title, colA, author, content, label }).save();
+const addBoard = async (args) => {
+    return new Board(args).save();
 };
 
-const getBoard = async ({ _id, author }) => {
-    const board = await Board.get({ _id, author });
+const getBoard = async ({ BoardId, _id }) => {
+    const board = await Board.get({ BoardId, _id });
     return board;
 };
 
-const deleteBoard = async ({ _id, author }) => {
-    const board = await Board.delete({ _id, author });
-    return board;
+const deleteBoard = async (args) => {
+    try {
+        await Board.delete(args);
+        return true;
+    } catch {
+        return false;
+    }
 };
 
 const searchBoards = async (args) => {
     const { lastKey, limit, sort, title, author, content, isMatched } = {
-        lastKey: args.lastKey,
-        limit: args.limit || 3,
+        lastKey: { _id: args.lastKey, BoardId: 'Board1' },
+        limit: args.limit || 5,
         sort: args.sort || 'seq',
         title: args.title,
         author: args.author,
         content: args.content,
         isMatched: args.isMatched || false,
     };
+    let Query;
 
-    const sortingField = Object.assign(sortingType.get(sort));
-    //let condition = new dynamoose.Condition().filter('title').eq(title);
-    const board = await Board.scan().exec();
+    let condition = new dynamoose.Condition().where('BoardId').eq('Board1');
+    condition = validParameters({ condition, title, author, content, isMatched });
+    Query = Board.query(condition);
+    Query = lastKey._id === undefined ? Query : Query.startAt(lastKey).limit(limit);
+    Query = sortingType({ Query, sort });
+    const board = await Query.exec();
     return board;
 };
 
-const addLike = async ({ _id, author }) => {
-    return Board.get({ _id, author }).then((board) => {
+const addLike = async (args) => {
+    return Board.get(args).then((board) => {
         ++board.like;
         return board.save();
     });
 };
 
-const addDislike = async ({ _id, author }) => {
-    return Board.get({ _id, author }).then((board) => {
+const addDislike = async (args) => {
+    return Board.get(args).then((board) => {
         --board.like;
         return board.save();
     });

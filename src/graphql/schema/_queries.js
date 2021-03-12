@@ -2,7 +2,7 @@ import { gql } from 'apollo-server';
 
 const typeDefs = gql`
     type Query {
-        getBoard(_id: ID!, author: String): Board
+        getBoard(BoardId: ID!, _id: String!): Board
         searchBoards(
             title: String
             author: String

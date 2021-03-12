@@ -6,7 +6,12 @@ const typeDefs = gql`
         count: Int
     }
 
+    type isDeletd {
+        result: Boolean
+    }
+
     type Board {
+        BoardId: String
         _id: ID!
         title: String
         content: String

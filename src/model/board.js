@@ -1,8 +1,6 @@
 import dynamoose from 'dynamoose';
 import dotenv from 'dotenv';
 
-import { dateNow } from '../modules/dateNow.js';
-
 dotenv.config();
 
 dynamoose.aws.sdk.config.update({
@@ -11,67 +9,49 @@ dynamoose.aws.sdk.config.update({
     region: process.env.AWS_REGION,
 });
 
-// const replaySchema = new dynamoose.Schema({
-//     Id: {
-//         type: String,
-//         hashKey: true,
-//     },
-//     ReplayDateTime: {
-//         type: Date,
-//         rangeKey: true,
-//     },
-//     message: String,
-//     postedBy: {
-//         type: String,
-//         index: {
-//             global: true,
-//             rangeKey: 'message',
-//             name: 'PostedBy-Message-Index',
-//             project: true,
-//             throughput: 5,
-//         },
-//     },
-// });
 const boardSchema = new dynamoose.Schema(
     {
-        _id: {
+        BoardId: {
             type: String,
             hashKey: true,
         },
-        range: {
+        _id: {
             type: String,
             rangeKey: true,
-            index: [
-                {
-                    global: true,
-                    rangeKey: 'createdAt',
-                    name: 'rangeDate-createdAt-index',
-                    project: true,
-                    throughput: 5,
-                },
-                {
-                    global: true,
-                    rangeKey: 'like',
-                    name: 'rangeLike-like-index',
-                    project: true,
-                    throughput: 5,
-                },
-            ],
         },
         title: {
             type: String,
+            index: {
+                name: 'title-index',
+                rangeKey: 'title',
+                throughput: { read: 5, write: 5 },
+            },
         },
         author: {
             type: String,
+            index: {
+                name: 'author-index',
+                rangeKey: 'author',
+                throughput: { read: 5, write: 5 },
+            },
         },
         content: {
             type: String,
+            index: {
+                name: 'content-index',
+                rangeKey: 'content',
+                throughput: { read: 5, write: 5 },
+            },
         },
+        updatedAt: { type: String },
         createdAt: {
             type: String,
-            default: dateNow(),
+            index: {
+                name: 'createdAt-index',
+                rangeKey: 'createdAt',
+                throughput: { read: 5, write: 5 },
+            },
         },
-        updatedAt: { type: String, default: dateNow() },
         label: {
             type: Set,
             schema: [String],
@@ -79,6 +59,11 @@ const boardSchema = new dynamoose.Schema(
         like: {
             type: Number,
             default: 0,
+            like: {
+                name: 'like-index',
+                rangeKey: 'like',
+                throughput: { read: 5, write: 5 },
+            },
         },
     },
     {
