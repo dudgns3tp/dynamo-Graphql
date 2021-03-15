@@ -3,6 +3,7 @@ import { gql } from 'apollo-server';
 const typeDefs = gql`
     type Query {
         getBoard(BoardId: ID!, _id: String!): Board
+
         searchBoards(
             BoardId: ID!
             title: String
@@ -11,9 +12,11 @@ const typeDefs = gql`
             lastKey: String
             limit: Int
             createdAt: Date
+            like: Int
             sort: sortingTypes
             isMatched: Boolean
         ): [Board]
+
         getPagenationBoards(
             BoardId: ID!
             title: String
@@ -24,6 +27,7 @@ const typeDefs = gql`
             sort: sortingTypes
             isMatched: Boolean
         ): [Board]
+
         getSearchCount(
             BoardId: ID!
             title: String

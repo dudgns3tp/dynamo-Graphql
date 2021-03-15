@@ -13,7 +13,9 @@ const typeDefs = gql`
 
     enum sortingTypes {
         like
-        recent
+        dislike
+        asc
+        desc
     }
 `;
 

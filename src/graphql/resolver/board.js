@@ -8,7 +8,12 @@ const resolvers = {
         searchBoards: async (_, args) => {
             const { BoardId, lastKey, limit, sort, title, author, content, isMatched } = {
                 BoardId: args.BoardId,
-                lastKey: { _id: args.lastKey, BoardId: 'Board1', createdAt: args.createdAt },
+                lastKey: {
+                    _id: args.lastKey,
+                    BoardId: 'Board1',
+                    createdAt: args.createdAt,
+                    like: args.like,
+                },
                 limit: args.limit || 5,
                 sort: args.sort || null,
                 title: args.title,

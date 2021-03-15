@@ -9,7 +9,7 @@ const typeDefs = gql`
             content: String!
             label: [label]
         ): Board
-        deleteBoard(BoardId: ID!, _id: String): isDeletd
+        deleteBoard(BoardId: ID!, _id: String): [Board]
         updateBoard(
             BoardId: ID!
             _id: String

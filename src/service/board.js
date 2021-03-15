@@ -4,10 +4,10 @@ import _ from 'lodash';
 
 import Board from '../model/board.js';
 import { validParameters } from '../util/validParameters.js';
-import { sortingType } from '../util/sortingType.js';
+import { sortingType, lastKeyType } from '../util/sortingType.js';
 
-const addBoard = async (args) => {
-    return new Board(args).save();
+const addBoard = async ({ BoardId, title, author, content, label, _id, createdAt, updatedAt }) => {
+    return new Board({ BoardId, title, author, content, label, _id, createdAt, updatedAt }).save();
 };
 
 const getBoard = async ({ BoardId, _id }) => {
@@ -15,12 +15,12 @@ const getBoard = async ({ BoardId, _id }) => {
     return board;
 };
 
-const deleteBoard = async (args) => {
+const deleteBoard = async ({ BoardId, _id }) => {
     try {
-        await Board.delete(args);
-        return true;
-    } catch {
-        return false;
+        const deletedBoard = await Board.delete({ BoardId, _id });
+        return deletedBoard;
+    } catch (err) {
+        return err;
     }
 };
 
@@ -31,7 +31,7 @@ const searchBoards = async ({ BoardId, lastKey, sort, title, author, content, is
         condition = validParameters({ condition, title, author, content, isMatched });
         Query = Board.query(condition);
         Query = sortingType({ Query, sort });
-        Query = _.isNil(lastKey._id) ? Query : Query.startAt(lastKey);
+        Query = _.isNil(lastKey._id) ? Query : Query.startAt(lastKeyType({ sort, lastKey }));
         const board = await Query.exec();
         return board.slice(0, 5);
     } catch (err) {
@@ -74,19 +74,19 @@ const getBoardsByPage = async ({
     }
 };
 
-const addLike = async (args) => {
-    return Board.get(args)
+const addLike = async ({ BoardId, _id }) => {
+    return Board.get({ BoardId, _id })
         .then((board) => {
             ++board.like;
             return board.save();
         })
-        .catch(() => {
-            throw new ApolloError('failed like', 'INTERNER_SERVER_ERROR');
+        .catch((err) => {
+            throw err;
         });
 };
 
-const addDislike = async (args) => {
-    return Board.get(args)
+const addDislike = async ({ BoardId, _id }) => {
+    return Board.get({ BoardId, _id })
         .then((board) => {
             --board.like;
             return board.save();
