@@ -3,8 +3,7 @@ import { ApolloError } from 'apollo-server';
 import _ from 'lodash';
 
 import Board from '../model/board.js';
-import { validParameters } from '../util/validParameters.js';
-import { sortingType, lastKeyType } from '../util/sortingType.js';
+import { sortingType, lastKeyType, validParameters } from '../util/boardUtil.js';
 
 const addBoard = async ({ BoardId, title, author, content, label, _id, createdAt, updatedAt }) => {
     return new Board({ BoardId, title, author, content, label, _id, createdAt, updatedAt }).save();
