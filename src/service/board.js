@@ -39,9 +39,10 @@ const searchBoards = async ({
         let condition = new dynamoose.Condition().where('BoardId').eq(BoardId);
         condition = validParameters({ condition, title, author, content, isMatched });
         Query = Board.query(condition);
-        Query = _.isNil(lastKey._id) ? Query : Query.startAt(lastKey);
         Query = sortingType({ Query, sort });
+        Query = _.isNil(lastKey._id) ? Query : Query.startAt(lastKey);
         const board = await Query.limit(limit).exec();
+        console.log(Query.limit(limit));
         return board;
     } catch (err) {
         console.log(err);

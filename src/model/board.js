@@ -59,7 +59,7 @@ const boardSchema = new dynamoose.Schema(
         like: {
             type: Number,
             default: 0,
-            like: {
+            index: {
                 name: 'like-index',
                 rangeKey: 'like',
                 throughput: { read: 5, write: 5 },

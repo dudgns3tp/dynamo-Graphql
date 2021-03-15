@@ -10,6 +10,7 @@ const typeDefs = gql`
             content: String
             lastKey: String
             limit: Int
+            createdAt: Date
             sort: sortingTypes
             isMatched: Boolean
         ): [Board]
