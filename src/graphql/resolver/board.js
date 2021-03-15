@@ -10,7 +10,7 @@ const resolvers = {
                 BoardId: args.BoardId,
                 lastKey: { _id: args.lastKey, BoardId: 'Board1', createdAt: args.createdAt },
                 limit: args.limit || 5,
-                sort: args.sort || 'seq',
+                sort: args.sort || null,
                 title: args.title,
                 author: args.author,
                 content: args.content,
@@ -35,8 +35,29 @@ const resolvers = {
                 content: args.content,
                 isMatched: args.isMatched || false,
             };
-            console.log(args);
             return await Board.searchCount({ BoardId, title, author, content, isMatched });
+        },
+        getPagenationBoards: async (_, args) => {
+            const { BoardId, limit, page, sort, title, author, content, isMatched } = {
+                BoardId: args.BoardId,
+                limit: args.limit || 5,
+                page: args.page || 1,
+                sort: args.sort || null,
+                title: args.title,
+                author: args.author,
+                content: args.content,
+                isMatched: args.isMatched || false,
+            };
+            return await Board.getBoardsByPage({
+                BoardId,
+                limit,
+                page,
+                sort,
+                title,
+                author,
+                content,
+                isMatched,
+            });
         },
     },
     Mutation: {

@@ -24,16 +24,7 @@ const deleteBoard = async (args) => {
     }
 };
 
-const searchBoards = async ({
-    BoardId,
-    lastKey,
-    limit,
-    sort,
-    title,
-    author,
-    content,
-    isMatched,
-}) => {
+const searchBoards = async ({ BoardId, lastKey, sort, title, author, content, isMatched }) => {
     try {
         let Query;
         let condition = new dynamoose.Condition().where('BoardId').eq(BoardId);
@@ -41,9 +32,8 @@ const searchBoards = async ({
         Query = Board.query(condition);
         Query = sortingType({ Query, sort });
         Query = _.isNil(lastKey._id) ? Query : Query.startAt(lastKey);
-        const board = await Query.limit(limit).exec();
-        console.log(Query.limit(limit));
-        return board;
+        const board = await Query.exec();
+        return board.slice(0, 5);
     } catch (err) {
         console.log(err);
     }
@@ -58,6 +48,29 @@ const searchCount = async ({ BoardId, title, author, content, isMatched }) => {
         return await Query.count().exec();
     } catch {
         throw new ApolloError('INTERNER SERVER ERROR', 'INTERNER_SERVER_ERROR');
+    }
+};
+
+const getBoardsByPage = async ({
+    BoardId,
+    limit,
+    page,
+    sort,
+    title,
+    author,
+    content,
+    isMatched,
+}) => {
+    try {
+        let Query;
+        let condition = new dynamoose.Condition().where('BoardId').eq(BoardId);
+        condition = validParameters({ condition, title, author, content, isMatched });
+        Query = Board.query(condition);
+        Query = sortingType({ Query, sort });
+        const board = await Query.exec();
+        return board.slice((page - 1) * limit, (page - 1) * limit + 5);
+    } catch (err) {
+        console.log(err);
     }
 };
 
@@ -96,4 +109,5 @@ export default {
     addDislike,
     searchCount,
     updateBoard,
+    getBoardsByPage,
 };

@@ -14,6 +14,16 @@ const typeDefs = gql`
             sort: sortingTypes
             isMatched: Boolean
         ): [Board]
+        getPagenationBoards(
+            BoardId: ID!
+            title: String
+            author: String
+            content: String
+            limit: Int
+            page: Int
+            sort: sortingTypes
+            isMatched: Boolean
+        ): [Board]
         getSearchCount(
             BoardId: ID!
             title: String

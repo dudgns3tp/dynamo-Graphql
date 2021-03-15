@@ -6,5 +6,6 @@ const sortingType = function ({ sort, Query }) {
 
     return query;
 };
+
 export default { sortingType };
 export { sortingType };
