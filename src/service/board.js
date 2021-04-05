@@ -23,14 +23,25 @@ const deleteBoard = async ({ BoardId, _id }) => {
     }
 };
 
-const searchBoards = async ({ BoardId, lastKey, sort, title, author, content, isMatched }) => {
+const searchBoards = async ({
+    BoardId,
+    lastKey,
+    sort,
+    title,
+    author,
+    content,
+    isMatched,
+    lastKeyValue,
+}) => {
     try {
         let Query;
         let condition = new dynamoose.Condition().where('BoardId').eq(BoardId);
         condition = validParameters({ condition, title, author, content, isMatched });
         Query = Board.query(condition);
         Query = sortingType({ Query, sort });
-        Query = _.isNil(lastKey._id) ? Query : Query.startAt(lastKeyType({ sort, lastKey }));
+        Query = _.isNil(lastKey._id)
+            ? Query
+            : Query.startAt(lastKeyType({ sort, lastKey, lastKeyValue: parseInt(lastKeyValue) }));
         const board = await Query.exec();
         return board.slice(0, 5);
     } catch (err) {

@@ -6,13 +6,21 @@ const resolvers = {
     Query: {
         getBoard: async (_, args) => await Board.getBoard(args),
         searchBoards: async (_, args) => {
-            const { BoardId, lastKey, limit, sort, title, author, content, isMatched } = {
+            const {
+                BoardId,
+                lastKey,
+                limit,
+                sort,
+                title,
+                author,
+                content,
+                isMatched,
+                lastKeyValue,
+            } = {
                 BoardId: args.BoardId,
                 lastKey: {
                     _id: args.lastKey,
                     BoardId: 'Board1',
-                    createdAt: args.createdAt,
-                    like: args.like,
                 },
                 limit: args.limit || 5,
                 sort: args.sort || null,
@@ -20,6 +28,7 @@ const resolvers = {
                 author: args.author,
                 content: args.content,
                 isMatched: args.isMatched || false,
+                lastKeyValue: args.lastKeyValue,
             };
             return await Board.searchBoards({
                 BoardId,
@@ -30,6 +39,7 @@ const resolvers = {
                 author,
                 content,
                 isMatched,
+                lastKeyValue,
             });
         },
         getSearchCount: async (_, args) => {
@@ -47,7 +57,7 @@ const resolvers = {
                 BoardId: args.BoardId,
                 limit: args.limit || 5,
                 page: args.page || 1,
-                sort: args.sort || null,
+                sort: args.sort || 'descending/like',
                 title: args.title,
                 author: args.author,
                 content: args.content,

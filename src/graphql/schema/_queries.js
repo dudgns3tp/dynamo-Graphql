@@ -13,8 +13,9 @@ const typeDefs = gql`
             limit: Int
             createdAt: Date
             like: Int
-            sort: sortingTypes
+            sort: String
             isMatched: Boolean
+            lastKeyValue: String
         ): [Board]
 
         getPagenationBoards(
@@ -24,7 +25,7 @@ const typeDefs = gql`
             content: String
             limit: Int
             page: Int
-            sort: sortingTypes
+            sort: String
             isMatched: Boolean
         ): [Board]
 

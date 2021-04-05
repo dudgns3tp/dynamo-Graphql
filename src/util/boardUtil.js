@@ -1,19 +1,11 @@
 const sortingType = function ({ sort, Query }) {
     let query = Query;
-
-    if (sort === 'desc') query = query.sort('descending').using('createdAt-index');
-    else if (sort === 'like') query = query.sort('descending').using('like-index');
-    else if (sort === 'dislike') query = query.sort('ascending').using('like-index');
-    else if (sort === 'asc') query = query.sort('ascending').using('createdAt-index');
-
+    let [sortType, indexType] = [];
+    if (sort) {
+        [sortType, indexType] = sort.split('/');
+        query = query.sort(sortType).using(`${indexType}-index`);
+    }
     return query;
-};
-
-const lastKeyType = function ({ sort, lastKey }) {
-    if (sort === 'desc' || sort === 'asc') delete lastKey.like;
-    else if (sort === 'like' || sort === 'dislike') delete lastKey.createdAt;
-    else lastKey;
-    return lastKey;
 };
 
 const validParameters = function (args) {
@@ -22,29 +14,19 @@ const validParameters = function (args) {
         (value) => value[1] != undefined
     );
 
-    for (let parameter of existedParameters) {
-        switch (parameter[0]) {
-            case 'title':
-                condition =
-                    isMatched === true
-                        ? condition.where('title').eq(title)
-                        : condition.where('title').contains(title);
-                break;
-            case 'author':
-                condition =
-                    isMatched === true
-                        ? condition.where('author').eq(author)
-                        : condition.where('author').contains(author);
-                break;
-            case 'content':
-                condition =
-                    isMatched === true
-                        ? condition.where('content').eq(content)
-                        : condition.where('content').contains(content);
-                break;
-        }
+    for (let [key, value] of existedParameters) {
+        condition =
+            isMatched === true
+                ? condition.where(key).eq(value)
+                : condition.where(key).contains(value);
     }
     return condition;
+};
+
+const lastKeyType = function ({ sort, lastKey, lastKeyValue }) {
+    const [_, indexType] = sort.split('/');
+    lastKey[indexType] = lastKeyValue;
+    return lastKey;
 };
 
 export default { sortingType, lastKeyType, validParameters };
